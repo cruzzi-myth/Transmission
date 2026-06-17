@@ -1,0 +1,168 @@
+.tx-upload-page {
+  background: var(--void);
+  min-height: 100vh;
+}
+
+.tx-upload-content {
+  padding: 110px 5% 60px;
+  max-width: 640px;
+}
+
+.tx-upload-content h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  margin-bottom: var(--space-1);
+}
+
+.tx-upload-sub {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--dim);
+  margin-bottom: var(--space-4);
+}
+
+.tx-upload-warning {
+  background: rgba(255, 90, 54, 0.12);
+  border: 1px solid var(--ember);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-bottom: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.tx-upload-warning a {
+  color: var(--ember);
+  text-decoration: underline;
+}
+
+.tx-upload-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.tx-upload-dropzone {
+  border: 2px dashed var(--line);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  text-align: center;
+  cursor: pointer;
+  color: var(--dim);
+  transition: border-color var(--duration-fast);
+}
+
+.tx-upload-dropzone:hover {
+  border-color: var(--signal);
+}
+
+.tx-upload-dropzone input {
+  display: none;
+}
+
+.tx-upload-form input[type="text"],
+.tx-upload-form input:not([type="checkbox"]):not([type="file"]),
+.tx-upload-form textarea,
+.tx-upload-form select {
+  background: var(--static);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: var(--phosphor);
+  padding: 12px;
+  font-size: var(--text-sm);
+  font-family: inherit;
+}
+
+.tx-upload-form textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.tx-upload-guidelines {
+  background: var(--static);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+}
+
+.tx-upload-guidelines h3 {
+  font-size: var(--text-sm);
+  margin: 0 0 var(--space-2);
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.tx-upload-check {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  font-size: var(--text-sm);
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+.tx-upload-check input {
+  margin-top: 3px;
+}
+
+.tx-upload-progress {
+  position: relative;
+  height: 28px;
+  background: var(--static);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+}
+
+.tx-upload-progress__bar {
+  position: absolute;
+  inset: 0;
+  background: var(--signal);
+  transition: width var(--duration-fast);
+}
+
+.tx-upload-progress span {
+  position: relative;
+  z-index: 1;
+  margin: 0 auto;
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  color: var(--void);
+  font-weight: 600;
+}
+
+.tx-upload-status {
+  color: var(--dim);
+  font-size: var(--text-sm);
+}
+
+.tx-upload-error {
+  color: var(--ember);
+  font-size: var(--text-sm);
+}
+
+.tx-upload-form button {
+  align-self: flex-start;
+}
+
+.tx-upload-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tx-upload-done {
+  padding: 140px 5%;
+  max-width: 500px;
+}
+
+.tx-upload-done h2 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-3);
+}
+
+.tx-upload-done p {
+  color: var(--dim);
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+}

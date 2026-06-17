@@ -1,0 +1,57 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return isSignedIn() && request.auth.uid == uid;
+    }
+
+    function myRole() {
+      return isSignedIn()
+        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
+        : null;
+    }
+
+    function isModerator() {
+      return myRole() == "moderator" || myRole() == "admin";
+    }
+
+    match /users/{uid} {
+      allow read: if isSignedIn();
+      allow create: if isOwner(uid)
+        && request.resource.data.role == "member"
+        && request.resource.data.tier == "free";
+
+      allow update: if isOwner(uid)
+        && request.resource.data.role == resource.data.role
+        && request.resource.data.tier == resource.data.tier
+        && request.resource.data.uploadsThisMonth == resource.data.uploadsThisMonth;
+
+      allow update: if isModerator();
+    }
+
+    match /uploads/{uploadId} {
+      allow read: if resource.data.status == "approved"
+        || (isSignedIn() && resource.data.uid == request.auth.uid)
+        || isModerator();
+
+      allow create: if isSignedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.status == "pending"
+        && request.resource.data.views == 0;
+
+      allow update: if isModerator()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "reviewedAt"]);
+
+      allow update: if isSignedIn()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["views"]);
+
+      allow delete: if isModerator() || (isSignedIn() && resource.data.uid == request.auth.uid);
+    }
+  }
+}

@@ -1,0 +1,128 @@
+.tx-login-page {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  background: var(--void);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.tx-login-scan {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--signal), transparent);
+  box-shadow: 0 0 12px var(--signal);
+  animation: scan-sweep 2.2s var(--ease-signal) 1;
+}
+
+@keyframes scan-sweep {
+  0% {
+    top: 0;
+    opacity: 0;
+  }
+  10% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
+.tx-login-box {
+  position: relative;
+  z-index: 1;
+  background: var(--static);
+  border: 1px solid var(--line);
+  padding: var(--space-6) var(--space-5);
+  border-radius: var(--radius-lg);
+  width: 100%;
+  max-width: 420px;
+}
+
+.tx-login-logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-4);
+}
+
+.tx-login-logo-mark {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--ember);
+  box-shadow: 0 0 8px var(--ember);
+}
+
+.tx-login-box h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  margin-bottom: var(--space-4);
+}
+
+.tx-login-box form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.tx-login-box input {
+  background: var(--void);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  color: var(--phosphor);
+  font-size: var(--text-base);
+}
+
+.tx-login-box input:focus {
+  border-color: var(--signal);
+}
+
+.tx-login-box button {
+  background: var(--ember);
+  color: var(--void);
+  border: none;
+  border-radius: var(--radius-md);
+  padding: 14px;
+  font-size: var(--text-base);
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: var(--space-1);
+}
+
+.tx-login-box button:disabled {
+  opacity: 0.6;
+}
+
+.tx-login-error {
+  background: rgba(255, 90, 54, 0.15);
+  border: 1px solid var(--ember);
+  color: var(--phosphor);
+  padding: 10px;
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+  margin-bottom: var(--space-3);
+}
+
+.tx-login-toggle {
+  color: var(--dim);
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.tx-login-toggle span {
+  color: var(--signal);
+  cursor: pointer;
+  font-weight: 600;
+}

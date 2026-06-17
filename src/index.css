@@ -1,0 +1,93 @@
+/* ====================================================================
+   DESIGN TOKENS - "Transmission" identity
+   Concept: independent creators broadcasting into one shared feed.
+   Palette named for the broadcast/CRT metaphor, not generic neon defaults.
+   ==================================================================== */
+
+:root {
+  /* Color */
+  --void: #0b0c10;          /* page background */
+  --static: #1c1f26;        /* card / surface elevation */
+  --static-raised: #262a33; /* hover / raised surface */
+  --signal: #7df9ff;        /* cool accent - browsing, links, connect */
+  --ember: #ff5a36;         /* warm accent - live, upload, urgent */
+  --phosphor: #e8e6e1;      /* primary text - warm off-white, not pure white */
+  --dim: #6b7280;           /* secondary text */
+  --line: #2c303a;          /* hairline borders */
+
+  /* Type */
+  --font-display: "Archivo Expanded", "Archivo", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+
+  /* Scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.75rem;
+  --text-2xl: 2.5rem;
+  --text-3xl: 3.5rem;
+
+  /* Spacing */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 16px;
+  --space-4: 24px;
+  --space-5: 40px;
+  --space-6: 64px;
+
+  /* Radius - sharp, not soft. Broadcast hardware has edges. */
+  --radius-sm: 2px;
+  --radius-md: 4px;
+  --radius-lg: 8px;
+
+  /* Motion */
+  --ease-signal: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-base: 300ms;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--void);
+  color: var(--phosphor);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+::selection {
+  background: var(--signal);
+  color: var(--void);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+:focus-visible {
+  outline: 2px solid var(--signal);
+  outline-offset: 2px;
+}

@@ -1,0 +1,121 @@
+.tx-community-page {
+  background: var(--void);
+  min-height: 100vh;
+}
+
+.tx-community-hero {
+  padding: 130px 5% 50px;
+  max-width: 640px;
+}
+
+.tx-community-eyebrow {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  letter-spacing: 0.12em;
+  color: var(--ember);
+}
+
+.tx-community-hero h1 {
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  margin: var(--space-2) 0 var(--space-3);
+  line-height: 1.1;
+}
+
+.tx-community-hero p {
+  color: var(--dim);
+  line-height: 1.6;
+  margin-bottom: var(--space-4);
+}
+
+.tx-community-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 5% var(--space-3);
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+
+.tx-community-chips {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.tx-chip {
+  background: var(--static);
+  color: var(--dim);
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+.tx-chip--active {
+  background: var(--signal);
+  color: var(--void);
+  border-color: var(--signal);
+}
+
+.tx-community-sort {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.tx-community-sort button {
+  background: none;
+  border: none;
+  color: var(--dim);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.tx-community-sort button.active {
+  color: var(--phosphor);
+  font-weight: 600;
+  border-bottom: 2px solid var(--ember);
+}
+
+.tx-community-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-3) 5% var(--space-6);
+}
+
+.tx-community-card {
+  display: block;
+}
+
+.tx-community-card__media {
+  width: 100%;
+  height: 140px;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--static);
+}
+
+.tx-community-card__media img,
+.tx-community-card__media video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tx-community-card__title {
+  font-weight: 600;
+  margin: var(--space-2) 0 2px;
+}
+
+.tx-community-card__meta {
+  color: var(--dim);
+  font-size: var(--text-xs);
+  margin: 0;
+}
+
+.tx-community-empty {
+  color: var(--dim);
+}

@@ -1,0 +1,26 @@
+.tx-home {
+  background: var(--void);
+  min-height: 100vh;
+}
+
+.tx-home__rows {
+  margin-top: -80px;
+  position: relative;
+  z-index: 3;
+  padding-bottom: var(--space-6);
+}
+
+.tx-home__upsell {
+  margin: var(--space-5) 5% 0;
+  background: var(--static);
+  border: 1px solid var(--signal);
+  border-radius: var(--radius-md);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.tx-home__upsell a {
+  color: var(--signal);
+  text-decoration: underline;
+  font-weight: 600;
+}
