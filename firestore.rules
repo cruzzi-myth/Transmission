@@ -1,5 +1,19 @@
 rules_version = '2';
 
+// Deploy from Firebase Console > Firestore Database > Rules tab,
+// or via CLI: firebase deploy --only firestore:rules
+//
+// CHANGES FROM PREVIOUS VERSION (security/abuse-prevention hardening):
+// - uploads now carry a server-set `moderationStatus` field
+//   ("pending_scan" | "flagged" | "clear") written only by the Cloud
+//   Function that calls Cloudinary's auto-moderation add-on - the client
+//   can no longer set or fake this field on create or update.
+// - "approved" reads now also require moderationStatus == "clear", so even
+//   if a moderator mistakenly approves something, it still can't go public
+//   until the automated scan has cleared it (belt-and-suspenders).
+// - users gained a `suspended` field; suspended accounts can't create uploads.
+// - new /reports collection lets signed-in users flag live content.
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
@@ -11,47 +25,84 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == uid;
     }
 
+    function myProfile() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
     function myRole() {
-      return isSignedIn()
-        ? get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role
-        : null;
+      return isSignedIn() ? myProfile().role : null;
     }
 
     function isModerator() {
       return myRole() == "moderator" || myRole() == "admin";
     }
 
+    function isNotSuspended() {
+      return isSignedIn() && myProfile().suspended != true;
+    }
+
+    // ---------- users ----------
     match /users/{uid} {
       allow read: if isSignedIn();
       allow create: if isOwner(uid)
         && request.resource.data.role == "member"
-        && request.resource.data.tier == "free";
+        && request.resource.data.tier == "free"
+        && request.resource.data.suspended == false;
 
+      // owners can update their own doc, but NOT role, tier, uploadsThisMonth,
+      // or suspended - those are server/moderator-trusted fields only.
       allow update: if isOwner(uid)
         && request.resource.data.role == resource.data.role
         && request.resource.data.tier == resource.data.tier
-        && request.resource.data.uploadsThisMonth == resource.data.uploadsThisMonth;
+        && request.resource.data.uploadsThisMonth == resource.data.uploadsThisMonth
+        && request.resource.data.suspended == resource.data.suspended;
 
+      // moderators/admins can change role or suspend a user (abuse response)
       allow update: if isModerator();
     }
 
+    // ---------- uploads ----------
     match /uploads/{uploadId} {
-      allow read: if resource.data.status == "approved"
+      // public read only once BOTH a human approved it AND the automated
+      // scan came back clear - closes the "moderator approves, but the
+      // scanner never ran or flagged it" gap.
+      allow read: if (resource.data.status == "approved" && resource.data.moderationStatus == "clear")
         || (isSignedIn() && resource.data.uid == request.auth.uid)
         || isModerator();
 
+      // creation: must be signed in, not suspended, own uid, start in the
+      // correct pending state, and moderationStatus must start as
+      // "pending_scan" - the client cannot mark its own upload "clear".
       allow create: if isSignedIn()
+        && isNotSuspended()
         && request.resource.data.uid == request.auth.uid
         && request.resource.data.status == "pending"
+        && request.resource.data.moderationStatus == "pending_scan"
         && request.resource.data.views == 0;
 
+      // status (human decision) can only be changed by moderators
       allow update: if isModerator()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "reviewedAt"]);
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["status", "reviewedAt", "reviewedBy"]);
 
+      // moderationStatus (automated scan result) is written exclusively by
+      // the Cloud Function service account, never by client SDK calls -
+      // there is intentionally no client-facing rule path that allows
+      // writing this field, so only Admin SDK / Cloud Functions can set it.
+
+      // view-increment from the Watch page - only that single field
       allow update: if isSignedIn()
         && request.resource.data.diff(resource.data).affectedKeys().hasOnly(["views"]);
 
       allow delete: if isModerator() || (isSignedIn() && resource.data.uid == request.auth.uid);
+    }
+
+    // ---------- reports (lets any signed-in user flag content) ----------
+    match /reports/{reportId} {
+      allow create: if isSignedIn()
+        && request.resource.data.reportedBy == request.auth.uid
+        && request.resource.data.status == "open";
+      allow read: if isModerator();
+      allow update: if isModerator();
     }
   }
 }

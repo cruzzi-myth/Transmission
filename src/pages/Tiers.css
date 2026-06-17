@@ -81,3 +81,30 @@
   opacity: 0.6;
   cursor: default;
 }
+
+.tx-tiers-banner {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+  max-width: 900px;
+}
+
+.tx-tiers-banner--success {
+  background: rgba(125, 249, 255, 0.1);
+  border: 1px solid var(--signal);
+  color: var(--signal);
+}
+
+.tx-tiers-banner--info {
+  background: rgba(232, 230, 225, 0.06);
+  border: 1px solid var(--line);
+  color: var(--dim);
+}
+
+.tx-tiers-banner--error {
+  background: rgba(255, 90, 54, 0.1);
+  border: 1px solid var(--ember);
+  color: var(--ember);
+}

@@ -29,7 +29,19 @@ export default function Upload() {
   const uploadsUsed = profile?.uploadsThisMonth || 0;
   const atLimit = uploadsUsed >= tier.uploadLimitPerMonth;
   const allChecked = checked.every(Boolean);
-  const canSubmit = file && title.trim() && allChecked && !atLimit && status === "idle";
+  const titleValid = title.trim().length > 0 && title.trim().length <= 120;
+  const canSubmit = file && titleValid && allChecked && !atLimit && status === "idle";
+
+  const handleFileChange = (e) => {
+    const f = e.target.files?.[0] || null;
+    if (f && f.size === 0) {
+      setErrorMsg("That file appears to be empty. Choose a different file.");
+      setFile(null);
+      return;
+    }
+    setErrorMsg("");
+    setFile(f);
+  };
 
   const toggleCheck = (i) => {
     const next = [...checked];
@@ -100,7 +112,7 @@ export default function Upload() {
             <input
               type="file"
               accept="video/*"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
+              onChange={handleFileChange}
               disabled={status !== "idle"}
             />
             {file ? <span>{file.name}</span> : <span>Click to choose a video file</span>}
@@ -111,6 +123,7 @@ export default function Upload() {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             disabled={status !== "idle"}
+            maxLength={120}
             required
           />
 

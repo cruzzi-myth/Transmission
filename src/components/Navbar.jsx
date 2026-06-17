@@ -22,6 +22,7 @@ export default function Navbar() {
   };
 
   const tier = TIERS[profile?.tier || "free"];
+  const isModerator = profile?.role === "moderator" || profile?.role === "admin";
 
   return (
     <nav className={`tx-nav ${scrolled ? "tx-nav--scrolled" : ""}`}>
@@ -49,6 +50,9 @@ export default function Navbar() {
           <div className="tx-nav__dropdown">
             <Link to="/studio">My Studio</Link>
             <Link to="/tiers">Manage plan</Link>
+            <Link to="/settings">Account settings</Link>
+            {isModerator && <Link to="/moderation">Moderation queue</Link>}
+            {isModerator && <Link to="/reports">User reports</Link>}
             <span onClick={logoutUser}>Sign out</span>
           </div>
         </div>

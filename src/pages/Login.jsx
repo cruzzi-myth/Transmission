@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { loginUser, signupUser } from "../utils/firebase";
 import "./Login.css";
 
@@ -54,6 +54,11 @@ export default function Login() {
             {loading ? "Loading..." : isSignup ? "Sign up" : "Sign in"}
           </button>
         </form>
+        {!isSignup && (
+          <p className="tx-login-toggle">
+            <Link to="/forgot-password">Forgot your password?</Link>
+          </p>
+        )}
         <p className="tx-login-toggle">
           {isSignup ? "Already have an account?" : "New here?"}{" "}
           <span onClick={() => setIsSignup(!isSignup)}>{isSignup ? "Sign in" : "Create one"}</span>

@@ -1,6 +1,8 @@
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
-import { setUserTier, TIERS } from "../utils/firebase";
+import { startTierCheckout, TIERS } from "../utils/firebase";
 import "./Tiers.css";
 
 const TIER_COPY = {
@@ -11,16 +13,39 @@ const TIER_COPY = {
 
 export default function Tiers() {
   const { user, profile, refreshProfile } = useAuth();
+  const [searchParams] = useSearchParams();
+  const [loadingTier, setLoadingTier] = useState(null);
+  const [error, setError] = useState("");
   const currentTier = profile?.tier || "free";
+  const checkoutResult = searchParams.get("checkout");
+
+  // Stripe redirects back here after checkout. On success the webhook may
+  // take a couple seconds to land before Firestore reflects the new tier,
+  // so we refresh the profile once on arrival and again after a short delay
+  // as a simple way to pick up the change without building a realtime
+  // listener just for this one page.
+  useEffect(() => {
+    if (checkoutResult === "success") {
+      refreshProfile();
+      const t = setTimeout(refreshProfile, 3000);
+      return () => clearTimeout(t);
+    }
+  }, [checkoutResult, refreshProfile]);
 
   const handleSelect = async (tierKey) => {
     if (!user || tierKey === currentTier) return;
-    // NOTE: this just writes the tier directly to Firestore - there's no
-    // actual payment processor wired up. A real version of this screen
-    // would call Stripe (or similar) first and only set the tier once
-    // payment succeeds, likely via a webhook rather than client-side.
-    await setUserTier(user.uid, tierKey);
-    await refreshProfile();
+    if (tierKey === "free") return; // downgrading to free happens via Stripe portal/cancellation, not here
+    setError("");
+    setLoadingTier(tierKey);
+    try {
+      await startTierCheckout(user.uid, tierKey);
+      // startTierCheckout redirects the page on success, so we normally
+      // never reach the next line - it only runs if something went wrong
+      // before the redirect happened.
+    } catch (err) {
+      setError(err.message);
+      setLoadingTier(null);
+    }
   };
 
   return (
@@ -29,8 +54,19 @@ export default function Tiers() {
       <div className="tx-tiers-content">
         <h1>Plans</h1>
         <p className="tx-tiers-sub">
-          Demo only - selecting a tier updates your account instantly, no real payment is processed.
+          Upgrades are processed securely through Stripe. You'll be redirected to complete payment, and your plan
+          updates automatically once it's confirmed.
         </p>
+
+        {checkoutResult === "success" && (
+          <div className="tx-tiers-banner tx-tiers-banner--success">
+            Payment confirmed — your plan is updating now. If it doesn't reflect within a minute, refresh this page.
+          </div>
+        )}
+        {checkoutResult === "cancelled" && (
+          <div className="tx-tiers-banner tx-tiers-banner--info">Checkout was cancelled. No charge was made.</div>
+        )}
+        {error && <div className="tx-tiers-banner tx-tiers-banner--error">{error}</div>}
 
         <div className="tx-tiers-grid">
           {Object.entries(TIERS).map(([key, tier]) => (
@@ -41,14 +77,19 @@ export default function Tiers() {
               <ul>
                 <li>{tier.uploadLimitPerMonth === Infinity ? "Unlimited" : tier.uploadLimitPerMonth} uploads / month</li>
                 <li>Up to {tier.maxResolution}</li>
-                <li>Connect up to {tier.connectedServices} services</li>
               </ul>
               <button
                 className={`tx-btn ${currentTier === key ? "tx-btn--ghost" : "tx-btn--ember"}`}
                 onClick={() => handleSelect(key)}
-                disabled={currentTier === key}
+                disabled={currentTier === key || loadingTier !== null || key === "free"}
               >
-                {currentTier === key ? "Current plan" : "Switch to " + tier.label}
+                {currentTier === key
+                  ? "Current plan"
+                  : key === "free"
+                  ? "Manage in billing portal"
+                  : loadingTier === key
+                  ? "Redirecting to checkout..."
+                  : "Switch to " + tier.label}
               </button>
             </div>
           ))}

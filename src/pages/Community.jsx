@@ -10,9 +10,18 @@ export default function Community() {
   const [uploads, setUploads] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [sortBy, setSortBy] = useState("recent"); // recent | views
+  const [loadState, setLoadState] = useState("loading"); // loading | loaded | error
 
   useEffect(() => {
-    getApprovedUploads().then(setUploads);
+    getApprovedUploads()
+      .then((data) => {
+        setUploads(data);
+        setLoadState("loaded");
+      })
+      .catch((err) => {
+        console.error("Failed to load community uploads:", err);
+        setLoadState("error");
+      });
   }, []);
 
   const filtered = uploads
@@ -54,16 +63,30 @@ export default function Community() {
       </div>
 
       <div className="tx-community-grid">
-        {filtered.map((u) => (
-          <Link key={u.id} to={`/watch/upload/${u.id}`} className="tx-community-card">
-            <div className="tx-community-card__media">
-              {u.thumbnailUrl ? <img src={u.thumbnailUrl} alt={u.title} /> : <video src={u.cloudinaryUrl} muted />}
-            </div>
-            <p className="tx-community-card__title">{u.title}</p>
-            <p className="tx-community-card__meta">{u.category} · {u.views || 0} views</p>
-          </Link>
-        ))}
-        {filtered.length === 0 && <p className="tx-community-empty">Nothing in this category yet.</p>}
+        {loadState === "loading" && <p className="tx-community-empty">Loading...</p>}
+        {loadState === "error" && (
+          <p className="tx-community-empty">
+            Couldn't load content right now. Check your connection and refresh the page.
+          </p>
+        )}
+        {loadState === "loaded" &&
+          filtered.map((u) => (
+            <Link key={u.id} to={`/watch/upload/${u.id}`} className="tx-community-card">
+              <div className="tx-community-card__media">
+                {u.thumbnailUrl ? <img src={u.thumbnailUrl} alt={u.title} /> : <video src={u.cloudinaryUrl} muted />}
+              </div>
+              <p className="tx-community-card__title">{u.title}</p>
+              <p className="tx-community-card__meta">{u.category} · {u.views || 0} views</p>
+            </Link>
+          ))}
+        {loadState === "loaded" && filtered.length === 0 && uploads.length === 0 && (
+          <p className="tx-community-empty">
+            No content has been approved yet. Be the first — <a href="/upload">upload something</a>.
+          </p>
+        )}
+        {loadState === "loaded" && filtered.length === 0 && uploads.length > 0 && (
+          <p className="tx-community-empty">Nothing in this category yet. Try a different filter.</p>
+        )}
       </div>
     </div>
   );

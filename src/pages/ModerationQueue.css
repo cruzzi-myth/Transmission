@@ -21,6 +21,12 @@
   margin-bottom: var(--space-4);
 }
 
+.tx-mod-denied {
+  color: var(--dim);
+  line-height: 1.6;
+  max-width: 480px;
+}
+
 .tx-mod-empty {
   color: var(--dim);
 }
