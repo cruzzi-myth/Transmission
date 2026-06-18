@@ -26,6 +26,9 @@ import {
   orderBy,
   getDocs,
   serverTimestamp,
+  arrayUnion,
+  arrayRemove,
+  increment,
 } from "firebase/firestore";
 
 const firebaseConfig = {
@@ -189,3 +192,31 @@ export const resolveReport = (reportId, resolution) =>
 export const setUserSuspended = (uid, suspended) => updateDoc(doc(db, "users", uid), { suspended });
 
 export const setUserRole = (uid, role) => updateDoc(doc(db, "users", uid), { role });
+
+export const getComments = async (uploadId) => {
+  const q = query(
+    collection(db, "comments"),
+    where("uploadId", "==", uploadId),
+    orderBy("createdAt", "asc")
+  );
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+};
+
+export const addComment = (uploadId, uid, authorName, text, parentId = null) =>
+  addDoc(collection(db, "comments"), {
+    uploadId,
+    uid,
+    authorName,
+    text,
+    parentId,
+    upvotes: 0,
+    upvotedBy: [],
+    createdAt: serverTimestamp(),
+  });
+
+export const toggleUpvote = (commentId, uid, hasVoted) =>
+  updateDoc(doc(db, "comments", commentId), {
+    upvotes: hasVoted ? increment(-1) : increment(1),
+    upvotedBy: hasVoted ? arrayRemove(uid) : arrayUnion(uid),
+  });

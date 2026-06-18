@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { doc, getDoc, updateDoc, increment } from "firebase/firestore";
 import Navbar from "../components/Navbar";
+import Comments from "../components/Comments";
 import { getMovieDetails } from "../utils/tmdb";
 import { db, reportUpload } from "../utils/firebase";
 import { useAuth } from "../context/AuthContext";
@@ -129,6 +130,7 @@ export default function Watch() {
         <div className="tx-watch-info">
           <h2>{data.title || data.name}</h2>
           <p>{data.overview || data.description}</p>
+          {data.isUpload && <Comments uploadId={id} />}
           {data.isUpload && (
             <>
               <p className="tx-watch-views">
