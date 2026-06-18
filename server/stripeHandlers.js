@@ -1,7 +1,9 @@
 import Stripe from "stripe";
 import { db } from "./firebaseAdmin.js";
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? new Stripe(process.env.STRIPE_SECRET_KEY)
+  : null;
 
 const PRICE_TO_TIER = {
   [process.env.STRIPE_PRICE_PLUS]: "plus",
@@ -12,6 +14,7 @@ const PRICE_TO_TIER = {
 // this, then redirects the browser to the returned URL - Stripe hosts the
 // actual payment form, so card data never touches this app's code at all.
 export async function createCheckoutSession(req, res) {
+  if (!stripe) return res.status(503).json({ error: "Stripe is not configured on this server." });
   try {
     const { uid, tier } = req.body;
     if (!uid || !tier) return res.status(400).json({ error: "uid and tier are required" });
@@ -48,6 +51,7 @@ export async function createCheckoutSession(req, res) {
 // is the sole trusted path. This closes the gap flagged earlier: "anyone
 // could theoretically set their own tier in Firestore."
 export async function handleStripeWebhook(req, res) {
+  if (!stripe) return res.status(503).json({ error: "Stripe is not configured on this server." });
   const signature = req.headers["stripe-signature"];
   let event;
 
