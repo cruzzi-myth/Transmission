@@ -3,6 +3,15 @@ import { fileURLToPath } from "url";
 import { dirname, join } from "path";
 const __serverDir = dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: join(__serverDir, ".env") });
+
+// Keep the process alive on any unhandled async failure and log it clearly
+// so Railway logs show the real cause instead of a silent 502.
+process.on("unhandledRejection", (reason) => {
+  console.error("[unhandledRejection]", reason);
+});
+process.on("uncaughtException", (err) => {
+  console.error("[uncaughtException]", err);
+});
 import express from "express";
 import cors from "cors";
 import { rateLimit } from "express-rate-limit";
