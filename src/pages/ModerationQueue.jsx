@@ -32,8 +32,13 @@ export default function ModerationQueue() {
   }, [isModerator, refresh]);
 
   const handleReview = async (id, decision) => {
-    await reviewUpload(id, decision, user.uid);
-    setPending((prev) => prev.filter((p) => p.id !== id));
+    try {
+      await reviewUpload(id, decision, user.uid);
+      setPending((prev) => prev.filter((p) => p.id !== id));
+    } catch (err) {
+      console.error("reviewUpload failed:", err);
+      alert(`Could not ${decision} this upload: ${err.message}`);
+    }
   };
 
   if (authLoading) return null;
