@@ -41,11 +41,6 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 
-// three tiers - free / plus / pro. limits enforced client-side for the demo;
-// a real product would also enforce these in Firestore security rules / a
-// backend function so someone can't just edit their own doc to upgrade themselves.
-// catalogAccess controls how much of the curated (TMDB-sourced) library shows
-// in the feed - "limited" caps it to a smaller curated slice, "full" shows everything.
 export const TIERS = {
   free: { label: "Free", uploadLimitPerMonth: 2, maxResolution: "720p", catalogAccess: "limited", catalogRowCap: 2 },
   plus: { label: "Plus", uploadLimitPerMonth: 15, maxResolution: "1080p", catalogAccess: "full", catalogRowCap: 5 },
@@ -65,11 +60,6 @@ export const signupUser = async (name, email, password) => {
     bio: "",
     suspended: false,
   });
-  // Fire off a verification email so the address is confirmed before the
-  // account is treated as fully trusted. We don't currently block login on
-  // this (no `if (!emailVerified)` gate anywhere), so it's a soft nudge for
-  // now rather than a hard requirement - see README "Email verification"
-  // for the option to make it a hard gate later.
   await sendEmailVerification(cred.user).catch((err) =>
     console.warn("Could not send verification email:", err.message)
   );
@@ -80,7 +70,6 @@ export const loginUser = (email, password) => signInWithEmailAndPassword(auth, e
 export const logoutUser = () => signOut(auth);
 export const subscribeToAuthChanges = (cb) => onAuthStateChanged(auth, cb);
 
-// ---------- account recovery / auth hygiene ----------
 export const resetPassword = (email) => sendPasswordResetEmail(auth, email.trim().toLowerCase());
 
 export const resendVerificationEmail = () => {
@@ -88,19 +77,13 @@ export const resendVerificationEmail = () => {
   return sendEmailVerification(auth.currentUser);
 };
 
-// Deleting an account requires re-entering the password first (Firebase
-// requires a "recent login" for destructive auth operations like this -
-// reauthenticating proves the request is really coming from the account
-// owner, not from someone who found an unlocked, already-logged-in tab).
 export const deleteOwnAccount = async (password) => {
   const user = auth.currentUser;
   if (!user) throw new Error("Not signed in");
   const credential = EmailAuthProvider.credential(user.email, password);
   await reauthenticateWithCredential(user, credential);
-  // Delete the Firestore profile first - if this were reversed and the
-  // Auth deletion succeeded but the Firestore delete then failed, the
-  // person would be locked out with no way to clean up their own orphaned
-  // profile document (the rules require auth to delete it).
+  // Delete Firestore profile before Auth account — if reversed, a failed
+  // Firestore delete would leave an orphaned doc the user can never clean up.
   await deleteDoc(doc(db, "users", user.uid));
   await deleteUser(user);
 };
@@ -112,18 +95,6 @@ export const getUserProfile = async (uid) => {
 
 export const updateUserProfile = (uid, data) => updateDoc(doc(db, "users", uid), data);
 
-// NOTE: there used to be a `setUserTier(uid, tier)` export here that wrote
-// the tier directly to Firestore from the client. It's removed because the
-// new Firestore rules block clients from writing their own tier field at
-// all (see firestore.rules) - this function would now just throw a
-// permission-denied error if called. Real tier changes only happen through
-// startTierCheckout below, which redirects to Stripe, and the resulting
-// webhook (server/stripeHandlers.js) writes the tier using the Admin SDK,
-// which bypasses client-facing rules entirely.
-
-// Calls the backend to create a Stripe Checkout session, then redirects the
-// browser there. Stripe hosts the actual payment form - card details never
-// pass through this app's frontend or backend code at all.
 const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:8787";
 
 export const startTierCheckout = async (uid, tier) => {
@@ -140,13 +111,6 @@ export const startTierCheckout = async (uid, tier) => {
   window.location.href = url;
 };
 
-// ---------- uploaded content ----------
-// status: "pending" | "approved" | "rejected" (human decision)
-// moderationStatus: "pending_scan" | "flagged" | "clear" (automated decision,
-// written exclusively by the server after Cloudinary's moderation add-on
-// finishes scanning - see server/moderationWebhook.js. The client always
-// starts this at "pending_scan"; Firestore rules block it from ever being
-// set to anything else by a direct client write.)
 export const submitUpload = async (uid, { title, description, category, cloudinaryUrl, cloudinaryPublicId, durationSeconds }) => {
   const ref = await addDoc(collection(db, "uploads"), {
     uid,
@@ -166,8 +130,6 @@ export const submitUpload = async (uid, { title, description, category, cloudina
 };
 
 export const getApprovedUploads = async () => {
-  // Public feed only ever shows content that's both human-approved AND
-  // passed the automated scan - mirrors the read rule in firestore.rules.
   const q = query(
     collection(db, "uploads"),
     where("status", "==", "approved"),
@@ -185,11 +147,6 @@ export const getUploadsForUser = async (uid) => {
 };
 
 export const getPendingUploads = async () => {
-  // Only show moderators content that's either already cleared the
-  // automated scan or hasn't been scanned yet - anything the scanner
-  // already flagged gets auto-rejected before it reaches a human (see
-  // server/moderationWebhook.js), so it's intentionally excluded here to
-  // avoid wasting a moderator's time re-reviewing what was already caught.
   const q = query(
     collection(db, "uploads"),
     where("status", "==", "pending"),
@@ -206,7 +163,6 @@ export const reviewUpload = (uploadId, decision, reviewerUid) =>
 
 export const deleteUpload = (uploadId) => deleteDoc(doc(db, "uploads", uploadId));
 
-// ---------- reports (user-flagged content) ----------
 export const reportUpload = (uploadId, reportedBy, reason) =>
   addDoc(collection(db, "reports"), {
     uploadId,
@@ -225,7 +181,6 @@ export const getOpenReports = async () => {
 export const resolveReport = (reportId, resolution) =>
   updateDoc(doc(db, "reports", reportId), { status: resolution, resolvedAt: serverTimestamp() });
 
-// ---------- moderator: suspend/unsuspend a user ----------
 export const setUserSuspended = (uid, suspended) => updateDoc(doc(db, "users", uid), { suspended });
 
 export const setUserRole = (uid, role) => updateDoc(doc(db, "users", uid), { role });
