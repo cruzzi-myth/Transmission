@@ -6,6 +6,59 @@ import "./Community.css";
 
 const CATEGORIES = ["All", "Short film", "Documentary", "Series episode", "Music video", "Vlog", "Tutorial", "Other"];
 
+const STEPS = [
+  {
+    title: "Upload",
+    desc: "Select your video file, add a title, category, and description, then submit.",
+  },
+  {
+    title: "Content scan",
+    desc: "Automated safety checks screen the upload for policy violations before it reaches a reviewer.",
+  },
+  {
+    title: "Moderator review",
+    desc: "A human moderator watches your video and approves or rejects it against our content guidelines.",
+  },
+  {
+    title: "Goes live",
+    desc: "Approved content appears on the Community page, visible to all members of the platform.",
+  },
+];
+
+const LEGAL = [
+  {
+    heading: "Content Guidelines",
+    items: [
+      "You must own the rights to everything you upload — original work only.",
+      "No copyrighted material without a clear licence or permission.",
+      "No hate speech, harassment, or content targeting individuals.",
+      "No content that endangers, exploits, or sexualises minors — zero tolerance.",
+      "No spam, scams, or deliberately misleading titles and descriptions.",
+      "Repeated violations will result in suspension.",
+    ],
+  },
+  {
+    heading: "Privacy Policy",
+    items: [
+      "We collect your display name, email address, and upload metadata.",
+      "Video files are stored via Cloudinary — we do not host them on our own servers.",
+      "Authentication and user data are handled by Firebase; see their privacy policy for details.",
+      "We do not sell, share, or trade your personal data with third parties.",
+      "You can permanently delete your account and all associated data from Account Settings.",
+    ],
+  },
+  {
+    heading: "Terms of Service",
+    items: [
+      "You retain full ownership of all content you upload to the platform.",
+      "By uploading you grant Transmission a non-exclusive licence to display your content to members.",
+      "We reserve the right to remove any content that violates our guidelines without notice.",
+      "Free tier: 2 uploads/month · Plus: 15 uploads/month · Pro: unlimited.",
+      "Accounts in repeated or serious violation may be suspended or permanently banned.",
+    ],
+  },
+];
+
 export default function Community() {
   const [uploads, setUploads] = useState([]);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -39,6 +92,22 @@ export default function Community() {
           Upload your own
         </Link>
       </div>
+
+      <section className="tx-community-process">
+        <span className="tx-community-eyebrow">HOW IT WORKS</span>
+        <h2 className="tx-community-process__heading">From upload to live in four steps</h2>
+        <div className="tx-community-steps">
+          {STEPS.map((step, i) => (
+            <div key={i} className="tx-community-step">
+              <div className="tx-community-step__dot">
+                <span>{i + 1}</span>
+              </div>
+              <p className="tx-community-step__title">{step.title}</p>
+              <p className="tx-community-step__desc">{step.desc}</p>
+            </div>
+          ))}
+        </div>
+      </section>
 
       <div className="tx-community-controls">
         <div className="tx-community-chips">
@@ -88,6 +157,26 @@ export default function Community() {
           <p className="tx-community-empty">Nothing in this category yet. Try a different filter.</p>
         )}
       </div>
+    </div>
+
+      <section className="tx-community-legal">
+        <div className="tx-community-legal__inner">
+          <span className="tx-community-eyebrow">PLATFORM POLICIES</span>
+          <h2 className="tx-community-legal__heading">What you need to know</h2>
+          <div className="tx-community-legal__grid">
+            {LEGAL.map((block) => (
+              <div key={block.heading} className="tx-community-legal__card">
+                <h3>{block.heading}</h3>
+                <ul>
+                  {block.items.map((item, i) => (
+                    <li key={i}>{item}</li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
     </div>
   );
 }
