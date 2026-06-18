@@ -157,7 +157,6 @@ export default function Community() {
           <p className="tx-community-empty">Nothing in this category yet. Try a different filter.</p>
         )}
       </div>
-    </div>
 
       <section className="tx-community-legal">
         <div className="tx-community-legal__inner">
