@@ -159,7 +159,12 @@ export const getPendingUploads = async () => {
 };
 
 export const reviewUpload = (uploadId, decision, reviewerUid) =>
-  updateDoc(doc(db, "uploads", uploadId), { status: decision, reviewedAt: serverTimestamp(), reviewedBy: reviewerUid });
+  updateDoc(doc(db, "uploads", uploadId), {
+    status: decision,
+    moderationStatus: decision === "approved" ? "clear" : "flagged",
+    reviewedAt: serverTimestamp(),
+    reviewedBy: reviewerUid,
+  });
 
 export const deleteUpload = (uploadId) => deleteDoc(doc(db, "uploads", uploadId));
 
