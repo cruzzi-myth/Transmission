@@ -114,6 +114,13 @@ export const startTierCheckout = async (uid, tier) => {
   window.location.href = url;
 };
 
+export function cloudinaryThumbnail(videoUrl) {
+  if (!videoUrl) return null;
+  return videoUrl
+    .replace("/video/upload/", "/video/upload/so_0,f_jpg,w_640/")
+    .replace(/\.(mp4|webm|mov|avi)$/i, ".jpg");
+}
+
 export const submitUpload = async (uid, { title, description, category, cloudinaryUrl, cloudinaryPublicId, durationSeconds }) => {
   const ref = await addDoc(collection(db, "uploads"), {
     uid,
@@ -122,6 +129,7 @@ export const submitUpload = async (uid, { title, description, category, cloudina
     category,
     cloudinaryUrl,
     cloudinaryPublicId,
+    thumbnailUrl: cloudinaryThumbnail(cloudinaryUrl),
     durationSeconds,
     status: "pending",
     moderationStatus: "pending_scan",

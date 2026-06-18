@@ -4,10 +4,9 @@ import Navbar from "../components/Navbar";
 import Hero from "../components/Hero";
 import ContentRow from "../components/ContentRow";
 import { getTrending, getByGenre, IMG_BASE } from "../utils/tmdb";
-import { getApprovedUploads } from "../utils/firebase";
+import { getApprovedUploads, cloudinaryThumbnail, TIERS } from "../utils/firebase";
 import { fetchYouTubeCategory } from "../utils/youtube";
 import { useAuth } from "../context/AuthContext";
-import { TIERS } from "../utils/firebase";
 import "./Home.css";
 
 const GENRE_ROWS = [
@@ -61,7 +60,7 @@ export default function Home() {
         data.map((u) => ({
           id: `upload-${u.id}`,
           title: u.title,
-          image: u.thumbnailUrl || "/upload-placeholder.svg",
+          image: u.thumbnailUrl || cloudinaryThumbnail(u.cloudinaryUrl) || "/upload-placeholder.svg",
           isUpload: true,
           creatorName: u.creatorName,
           watchPath: `/watch/upload/${u.id}`,

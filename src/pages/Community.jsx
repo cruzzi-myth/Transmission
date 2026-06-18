@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { getApprovedUploads } from "../utils/firebase";
+import { getApprovedUploads, cloudinaryThumbnail } from "../utils/firebase";
 import "./Community.css";
 
 const CATEGORIES = ["All", "Short film", "Documentary", "Series episode", "Music video", "Vlog", "Tutorial", "Other"];
@@ -142,7 +142,7 @@ export default function Community() {
           filtered.map((u) => (
             <Link key={u.id} to={`/watch/upload/${u.id}`} className="tx-community-card">
               <div className="tx-community-card__media">
-                {u.thumbnailUrl ? <img src={u.thumbnailUrl} alt={u.title} /> : <video src={u.cloudinaryUrl} muted />}
+                <img src={u.thumbnailUrl || cloudinaryThumbnail(u.cloudinaryUrl)} alt={u.title} />
               </div>
               <p className="tx-community-card__title">{u.title}</p>
               <p className="tx-community-card__meta">{u.category} · {u.views || 0} views</p>
