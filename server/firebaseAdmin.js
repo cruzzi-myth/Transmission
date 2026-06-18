@@ -7,16 +7,24 @@ import fs from "fs";
 // key file or deploying somewhere that injects secrets as env vars directly.
 function loadServiceAccount() {
   const raw = process.env.FIREBASE_SERVICE_ACCOUNT_JSON;
-  if (!raw) {
-    throw new Error(
-      "FIREBASE_SERVICE_ACCOUNT_JSON is not set. Download a service account key from " +
-      "Firebase Console > Project Settings > Service Accounts, and either point this " +
-      "env var at the file path or paste the JSON contents directly."
-    );
+  if (!raw) return null;
+  try {
+    if (raw.trim().startsWith("{")) return JSON.parse(raw);
+    return JSON.parse(fs.readFileSync(raw, "utf8"));
+  } catch {
+    return null;
   }
-  if (raw.trim().startsWith("{")) return JSON.parse(raw);
-  return JSON.parse(fs.readFileSync(raw, "utf8"));
 }
 
-const app = initializeApp({ credential: cert(loadServiceAccount()) });
-export const db = getFirestore(app);
+const serviceAccount = loadServiceAccount();
+let db = null;
+if (serviceAccount) {
+  const app = initializeApp({ credential: cert(serviceAccount) });
+  db = getFirestore(app);
+} else {
+  console.warn(
+    "[firebaseAdmin] FIREBASE_SERVICE_ACCOUNT_JSON not set — Stripe/Cloudinary webhook routes will not work. " +
+    "YouTube and health routes are unaffected."
+  );
+}
+export { db };

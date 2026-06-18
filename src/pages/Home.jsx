@@ -5,6 +5,7 @@ import Hero from "../components/Hero";
 import ContentRow from "../components/ContentRow";
 import { getTrending, getByGenre, IMG_BASE } from "../utils/tmdb";
 import { getApprovedUploads } from "../utils/firebase";
+import { fetchYouTubeCategory } from "../utils/youtube"; // <-- ADD THIS
 import { useAuth } from "../context/AuthContext";
 import { TIERS } from "../utils/firebase";
 import "./Home.css";
@@ -36,10 +37,10 @@ export default function Home() {
   const [trending, setTrending] = useState([]);
   const [genreRows, setGenreRows] = useState({});
   const [uploads, setUploads] = useState([]);
+  const [musicVideos, setMusicVideos] = useState([]); // <-- ADD THIS
   const [featured, setFeatured] = useState(null);
 
   const tier = TIERS[profile?.tier || "free"];
-  // free tier sees a capped number of curated rows; plus/pro see the full set
   const visibleGenres = GENRE_ROWS.slice(0, tier.catalogRowCap);
 
   useEffect(() => {
@@ -68,6 +69,11 @@ export default function Home() {
         }))
       );
     });
+
+    // ADD THIS BLOCK
+    fetchYouTubeCategory("music")
+      .then(setMusicVideos)
+      .catch((err) => console.error("YouTube fetch failed:", err));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tier.catalogRowCap]);
 
@@ -77,6 +83,7 @@ export default function Home() {
       <Hero featured={featured} />
       <div className="tx-home__rows">
         {uploads.length > 0 && <ContentRow title="From independent creators" items={uploads} />}
+        {musicVideos.length > 0 && <ContentRow title="Music Videos" items={musicVideos} />} {/* ADD THIS */}
         <ContentRow title="Trending now" items={trending} />
         {visibleGenres.map((g) => <ContentRow key={g.id} title={g.name} items={genreRows[g.id]} />)}
 

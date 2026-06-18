@@ -1,14 +1,20 @@
-import "dotenv/config";
+import dotenv from "dotenv";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
+const __serverDir = dirname(fileURLToPath(import.meta.url));
+dotenv.config({ path: join(__serverDir, ".env") });
 import express from "express";
 import cors from "cors";
 import { rateLimit } from "express-rate-limit";
 import { createCheckoutSession, handleStripeWebhook } from "./stripeHandlers.js";
 import { handleCloudinaryWebhook } from "./moderationWebhook.js";
+import youtubeRouter from './youtube.js';
 
 const app = express();
 const PORT = process.env.PORT || 8787;
 
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
+app.use('/api/youtube', youtubeRouter);
 
 // ---------- rate limiting ----------
 // These cap how many times a single IP can hit cost-sensitive or
