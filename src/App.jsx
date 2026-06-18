@@ -15,6 +15,7 @@ import Reports from "./pages/Reports";
 import Tiers from "./pages/Tiers";
 import Community from "./pages/Community";
 import Settings from "./pages/Settings";
+import Browse from "./pages/Browse";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
           <Route path="/tiers" element={<ProtectedRoute><Tiers /></ProtectedRoute>} />
           <Route path="/community" element={<ProtectedRoute><Community /></ProtectedRoute>} />
           <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+          <Route path="/browse/:type/:genreId" element={<ProtectedRoute><Browse /></ProtectedRoute>} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

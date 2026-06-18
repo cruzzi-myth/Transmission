@@ -4,6 +4,28 @@ import { useAuth } from "../context/AuthContext";
 import { logoutUser, TIERS } from "../utils/firebase";
 import "./Navbar.css";
 
+const MOVIE_GENRES = [
+  { id: 28, name: "Action" },
+  { id: 35, name: "Comedy" },
+  { id: 18, name: "Drama" },
+  { id: 27, name: "Horror" },
+  { id: 10749, name: "Romance" },
+  { id: 99, name: "Documentaries" },
+  { id: 16, name: "Animation" },
+  { id: 53, name: "Thrillers" },
+];
+
+const TV_GENRES = [
+  { id: 18, name: "Drama" },
+  { id: 35, name: "Comedy" },
+  { id: 80, name: "Crime" },
+  { id: 10765, name: "Sci-Fi & Fantasy" },
+  { id: 10759, name: "Action & Adventure" },
+  { id: 99, name: "Documentary" },
+  { id: 16, name: "Animation" },
+  { id: 9648, name: "Mystery" },
+];
+
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [query, setQuery] = useState("");
@@ -32,7 +54,33 @@ export default function Navbar() {
           TRANSMISSION
         </Link>
         <div className="tx-nav__links">
-          <Link to="/">Feed</Link>
+          <div className="tx-nav__menu-item">
+            <Link to="/">Feed</Link>
+            <div className="tx-nav__submenu">
+              <div className="tx-nav__submenu-item">
+                <span>Movies</span>
+                <span className="tx-nav__submenu-arrow">›</span>
+                <div className="tx-nav__submenu2">
+                  {MOVIE_GENRES.map((g) => (
+                    <Link key={g.id} to={`/browse/movie/${g.id}?name=${encodeURIComponent(g.name)}`}>
+                      {g.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+              <div className="tx-nav__submenu-item">
+                <span>Shows</span>
+                <span className="tx-nav__submenu-arrow">›</span>
+                <div className="tx-nav__submenu2">
+                  {TV_GENRES.map((g) => (
+                    <Link key={g.id} to={`/browse/tv/${g.id}?name=${encodeURIComponent(g.name)}`}>
+                      {g.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
           <Link to="/community">Community</Link>
           <Link to="/upload">Upload</Link>
           <Link to="/studio">My Studio</Link>
