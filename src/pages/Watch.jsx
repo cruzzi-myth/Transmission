@@ -16,7 +16,7 @@ const REPORT_REASONS = [
 ];
 
 export default function Watch() {
-  const { source, id } = useParams(); // source = "tmdb" | "upload"
+  const { source, id } = useParams(); // source = "tmdb" | "upload" | "youtube"
   const navigate = useNavigate();
   const { user } = useAuth();
   const [view, setView] = useState({ data: null, notFound: false, forKey: null });
@@ -41,6 +41,8 @@ export default function Watch() {
         .catch(() => {
           if (!cancelled) setView({ data: null, notFound: true, forKey: key });
         });
+    } else if (source === "youtube") {
+      if (!cancelled) setView({ data: { id, isYoutube: true }, notFound: false, forKey: key });
     } else if (source === "upload") {
       getDoc(doc(db, "uploads", id)).then((snap) => {
         if (cancelled) return;
@@ -99,10 +101,18 @@ export default function Watch() {
 
       <div className="tx-watch-player">
         {!data && <div className="tx-watch-noplayer">Loading...</div>}
+        {data?.isYoutube && (
+          <iframe
+            title="player"
+            src={`https://www.youtube.com/embed/${data.id}?autoplay=1`}
+            allow="autoplay; encrypted-media; fullscreen"
+            allowFullScreen
+          />
+        )}
         {data?.isUpload && data.cloudinaryUrl && (
           <video src={data.cloudinaryUrl} controls autoPlay className="tx-watch-video" />
         )}
-        {data && !data.isUpload && trailer && (
+        {data && !data.isUpload && !data.isYoutube && trailer && (
           <iframe
             title="player"
             src={`https://www.youtube.com/embed/${trailer.key}?autoplay=1`}
@@ -110,7 +120,7 @@ export default function Watch() {
             allowFullScreen
           />
         )}
-        {data && !data.isUpload && !trailer && (
+        {data && !data.isUpload && !data.isYoutube && !trailer && (
           <div className="tx-watch-noplayer">No trailer available for this title.</div>
         )}
       </div>

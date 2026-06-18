@@ -11,7 +11,7 @@ export async function fetchYouTubeCategory(categoryName) {
     title: video.title,
     image: video.thumbnail,
     isUpload: false,
-    watchPath: `/youtube/${video.id}`,
+    watchPath: `/watch/youtube/${video.id}`,
     creatorName: video.channelTitle,
   }));
 }
